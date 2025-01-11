@@ -1,8 +1,13 @@
-import React from 'react'
+import { LoginForm } from '../components/login-form';
+import "./styles/LoginPage.css";
 
 const LoginPage = () => {
   return (
-    <div>LoginPage</div>
+    <>
+      <div className="loginContainer h-screen w-screen flex justify-center items-center">
+        <LoginForm />
+      </div>
+    </>
   )
 }
 
