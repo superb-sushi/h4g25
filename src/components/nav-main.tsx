@@ -30,9 +30,59 @@ export function NavMain({
     items?: {
       title: string
       url: string
+      setters: Array<React.Dispatch<React.SetStateAction<boolean>>>
     }[]
   }[]
 }) {
+
+  const handleSelectItem = (item: {
+    title: string
+    url: string
+    setters: Array<React.Dispatch<React.SetStateAction<boolean>>>
+  }) => {
+    if (item.title == "Available") {
+      for (let i = 0; i < item.setters.length; i++) {
+        if (i == 0) {
+          item.setters[i](true);
+        } else {
+          item.setters[i](false);
+        }
+      }
+    } else if (item.title == "Out of Stock") {
+      for (let i = 0; i < item.setters.length; i++) {
+        if (i == 1) {
+          item.setters[i](true);
+        } else {
+          item.setters[i](false);
+        }
+      }
+    } else if (item.title == "Owned") {
+      for (let i = 0; i < item.setters.length; i++) {
+        if (i == 2) {
+          item.setters[i](true);
+        } else {
+          item.setters[i](false);
+        }
+      }
+    } else if (item.title == "Auction") {
+      for (let i = 0; i < item.setters.length; i++) {
+        if (i == 3) {
+          item.setters[i](true);
+        } else {
+          item.setters[i](false);
+        }
+      }
+    } else if (item.title == "Past Transactions") {
+      for (let i = 0; i < item.setters.length; i++) {
+        if (i == 4) {
+          item.setters[i](true);
+        } else {
+          item.setters[i](false);
+        }
+      }
+    }
+  }
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -59,7 +109,7 @@ export function NavMain({
                       {item.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton asChild>
-                            <a href={subItem.url}>
+                            <a href={subItem.url} onClick={() => handleSelectItem(subItem)}>
                               <span>{subItem.title}</span>
                             </a>
                           </SidebarMenuSubButton>

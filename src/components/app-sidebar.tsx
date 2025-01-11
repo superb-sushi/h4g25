@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/sidebar";
 import { getCurrentUser } from "@/firebase"
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {  
+export function AppSidebar({setStates} : { setStates: Array<React.Dispatch<React.SetStateAction<boolean>>>}) {  
 
   const user = getCurrentUser() ? getCurrentUser() : {
     displayName: "Default User",
@@ -41,10 +41,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           {
             title: "Available",
             url: "#",
+            setters: setStates
           },
           {
             title: "Out of Stock",
             url: "#",
+            setters: setStates
           },
         ],
       },
@@ -54,8 +56,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         icon: Ticket,
         items: [
           {
-            title: "Available",
+            title: "Owned",
             url: "#",
+            setters: setStates
+          },
+          {
+            title: "Auction",
+            url: "#",
+            setters: setStates
           },
         ],
       },
@@ -67,6 +75,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           {
             title: "Past Transactions",
             url: "#",
+            setters: setStates
           },
         ],
       },
@@ -74,7 +83,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }
 
   return (
-    <Sidebar variant="inset" {...props}>
+    <Sidebar variant="inset">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
