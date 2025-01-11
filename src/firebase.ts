@@ -30,7 +30,8 @@ export async function signUp(emailInput: string, passwordInput: string) {
             await setDoc(doc(db, "users", userCredential.user.uid), {
                 id: userCredential.user.uid,
                 email: emailInput,
-                vouchers: []
+                vouchers: [],
+                transactionHistory: [],
             } as User)
     } catch (err) {
         console.log(err);
@@ -50,4 +51,8 @@ export function signUserOut() {
     // An error happened.
     console.log(error);
     });
+}
+
+export function getCurrentUser() {
+    return auth.currentUser;
 }
