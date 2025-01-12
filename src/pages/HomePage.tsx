@@ -17,7 +17,7 @@ import Transaction from "../components/transaction";
 import { User } from "@/schema/User"
 import { getCurrentUser, getUserData, readItems } from "@/firebase"
 import { Item } from "@/schema/item"
-import { getAuth, onAuthStateChanged, User as U } from "firebase/auth"
+import { getAuth, onAuthStateChanged } from "firebase/auth"
 
 const HomePage = () => {
 
