@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { addDoc, collection, doc, getDoc, getDocs, getFirestore, setDoc, updateDoc } from "firebase/firestore";
+import { browserSessionPersistence, createUserWithEmailAndPassword, getAuth, setPersistence, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { addDoc, arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, getFirestore, setDoc, updateDoc } from "firebase/firestore";
 import { User } from "./schema/User";
 import { getDownloadURL, getStorage, ref, StorageReference, uploadBytes } from "firebase/storage";
 import { Item } from "./schema/item";
@@ -27,6 +27,7 @@ const storage = getStorage();
 
 // Initialize Firebase Authentication and get a reference to the service
 export const auth = getAuth(app);
+await setPersistence(auth, browserSessionPersistence);
 
 export async function signUp(emailInput: string, passwordInput: string) {
     console.log("signing user up...")
@@ -76,6 +77,19 @@ export async function getUserData(email: string) {
     }
 }
 
+export async function getItemData(id: string) {
+    const docRef = doc(db, "items", id);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+        console.log("Item data retrieved:", docSnap.data());
+        return docSnap.data();
+    } else {
+        // docSnap.data() will be undefined in this case
+        console.log("No such document!");
+    }
+}
+
 export async function readItems() {
     const querySnapshot = await getDocs(collection(db, "items"));
     console.log("Retrieved all minimart items!");
@@ -115,6 +129,57 @@ export async function updateUserBalance(email: string, newBalance: number) {
         await updateDoc(doc(db, "users", email), {
             balance: newBalance
         })
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+export async function updateUserTransactionHistory(operation: number, email: string, transaction: string) {
+    try {
+        if (operation == 0) {
+            await updateDoc(doc(db, "users", email), {
+                transactionHistory: arrayUnion(transaction)
+            })
+            console.log(`Added ${transaction} to user: email!`)
+        } else {
+            await updateDoc(doc(db, "users", email), {
+                transactionHistory: arrayRemove(transaction)
+            })
+            console.log(`Removed ${transaction} from user: email!`)
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+export async function purchaseItem(item: Item, totalPx: number, quantity: number, user: User) {
+
+    //Update item quantity
+    const newQuantity = item.quantity - quantity;
+    try {
+        await updateDoc(doc(db, "items", item.id), {
+            quantity: newQuantity,
+            isAvailable: !(newQuantity == 0)
+        })
+    } catch (err) {
+        console.error(err);
+    }
+
+    //Update User balance
+    const newBalance = user.balance - totalPx;
+    updateUserBalance(user.email, newBalance);
+
+    //Update User transaction history - transaction code is as such: itemId_quantity
+    const newTransaction = item.id + "_" + quantity;
+    updateUserTransactionHistory(0, user.email, newTransaction);
+}
+
+export async function updateItemRequests(email: string, item: Item) {
+    try {
+        await updateDoc(doc(db, "items", item.id), {
+            requests: item.requests.includes(email) ? item.requests : arrayUnion(email)
+        })
+        console.log(`Request added to product ${item.id}!`)
     } catch (err) {
         console.error(err);
     }

@@ -31,7 +31,7 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 
 import { User } from "@/schema/User";
-import { getImageUrl } from "@/firebase";
+import { getImageUrl, purchaseItem } from "@/firebase";
 
 const ItemCard = ({user, item}: {user:User, item: Item}) => {
     
@@ -70,7 +70,11 @@ const ItemCard = ({user, item}: {user:User, item: Item}) => {
 
     const handlePurchase = () => {
         try {
-            throw new Error("This doesn't work yet...");
+          purchaseItem(item, totalPx, quantity, user);
+          toast({
+            title: "Purchase Successful!",
+            description: `Your transaction of "${quantity} ${item.name}(s) has been recorded!"`
+          })
         } catch (e) {
             toast({
                 title: "Purchase Error",

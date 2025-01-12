@@ -74,7 +74,7 @@ const HomePage = () => {
           </div>
         </header>
         <div className="homeContent flex-1 flex items-center justify-center">
-          {isMA ? <Minimart items={items} user={user}/> : isMO ? <MinimartOut items={items}/> : isV ? <Voucher/> : isVA ? <VoucherAuction /> : isH ? <Transaction /> : <></>}
+          {isMA ? <Minimart items={items} user={user}/> : isMO ? <MinimartOut items={items} user={user}/> : isV ? <Voucher/> : isVA ? <VoucherAuction /> : isH ? <Transaction /> : <></>}
         </div>
       </SidebarInset>
     </SidebarProvider>

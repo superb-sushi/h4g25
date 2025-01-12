@@ -10,19 +10,28 @@ import { Check } from "lucide-react"
   
 
 import { Item } from "../schema/item"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import "./styles/ItemCard.css";
 
 import scr from "../assets/scr.jpg";
 import { Button } from "./ui/button";
+import { User } from "@/schema/User";
+import { updateItemRequests } from "@/firebase";
 
-const OOSItemCard = ({item}: { item: Item}) => {
+const OOSItemCard = ({item, user}: { item: Item, user: User}) => {
     
     const [haveRequested, setHaveRequested] = useState<boolean>(false);
 
+    useEffect(() => {
+      if (item.requests.includes(user.email)) {
+        setHaveRequested(true);
+      }
+    }, [])
+
     const handleRequest = () => {
         setHaveRequested(true);
+        updateItemRequests(user.email, item);
     }
 
   return (
