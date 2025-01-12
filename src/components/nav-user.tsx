@@ -22,14 +22,13 @@ import {
 
 import { signUserOut } from "../firebase";
 import { Link } from "react-router-dom";
+import { User } from "../schema/User";
+import mwhicon from "../assets/mwhicon.jpg"
 
 export function NavUser({
   user,
 }: {
-  user: {
-    email: string
-    avatar: string
-  }
+  user: User
 }) {
   const { isMobile } = useSidebar()
 
@@ -47,10 +46,11 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} />
+                <AvatarImage src={mwhicon} />
                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate text-lg font-bold">S${user.balance.toFixed(2)}</span>
                 <span className="truncate text-xs">{user.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />

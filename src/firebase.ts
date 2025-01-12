@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { doc, getFirestore, setDoc } from "firebase/firestore";
+import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
 import { User } from "./schema/User";
 
 // Your web app's Firebase configuration
@@ -26,12 +26,13 @@ export const auth = getAuth(app);
 export async function signUp(emailInput: string, passwordInput: string) {
     console.log("signing user up...")
     try {
-        const userCredential = await createUserWithEmailAndPassword(auth, emailInput, passwordInput); // createUserWithEmailAndPassword automatically signs user in
-            await setDoc(doc(db, "users", userCredential.user.uid), {
-                id: userCredential.user.uid,
+        await createUserWithEmailAndPassword(auth, emailInput, passwordInput); // createUserWithEmailAndPassword automatically signs user in
+            await setDoc(doc(db, "users", emailInput), {
                 email: emailInput,
                 vouchers: [],
                 transactionHistory: [],
+                balance: 0,
+                isAdmin: false
             } as User)
     } catch (err) {
         console.log(err);
@@ -55,4 +56,17 @@ export function signUserOut() {
 
 export function getCurrentUser() {
     return auth.currentUser;
+}
+
+export async function getUserData(id: string) {
+    const docRef = doc(db, "users", id);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+        console.log("User data retrieved:", docSnap.data());
+        return docSnap.data();
+    } else {
+        // docSnap.data() will be undefined in this case
+        console.log("No such document!");
+    }
 }

@@ -7,13 +7,15 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import Minimart from "../components/minimart";
 import MinimartOut from "../components/minimart-out";
 import Voucher from "../components/voucher";
 import VoucherAuction from "../components/voucher-auction";
 import Transaction from "../components/transaction";
+import { User } from "@/schema/User"
+import { getCurrentUser, getUserData } from "@/firebase"
 
 const HomePage = () => {
 
@@ -23,9 +25,28 @@ const HomePage = () => {
   const [isVA, setIsVA] = useState<boolean>(false);
   const [isH, setIsH] = useState<boolean>(false);
 
+  const defaultUser = {
+    email: "",
+    vouchers: [],
+    transactionHistory: [],
+    balance: 0,
+    isAdmin: false
+  } as User
+
+  const [user, setUser] = useState<User>(defaultUser);
+
+  useEffect( () => {
+    const getUser = async () => {
+      const email = await getCurrentUser()!.email!;
+      const user = await getUserData(email) as User;
+      setUser(user)
+    }
+    getUser();
+  },[])
+
   return (
-    <SidebarProvider>
-      <AppSidebar setStates={[setIsMA, setIsMO, setIsV, setIsVA, setIsH]}/>
+    <SidebarProvider> 
+      <AppSidebar user={user} setStates={[setIsMA, setIsMO, setIsV, setIsVA, setIsH]}/>
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2">
           <div className="flex items-center gap-2 px-4">
@@ -34,7 +55,7 @@ const HomePage = () => {
           </div>
         </header>
         <div className="homeContent flex-1 flex items-center justify-center">
-          {isMA ? <Minimart /> : isMO ? <MinimartOut/> : isV ? <Voucher/> : isVA ? <VoucherAuction /> : isH ? <Transaction /> : <></>}
+          {isMA ? <Minimart user={user}/> : isMO ? <MinimartOut /> : isV ? <Voucher/> : isVA ? <VoucherAuction /> : isH ? <Transaction /> : <></>}
         </div>
       </SidebarInset>
     </SidebarProvider>
