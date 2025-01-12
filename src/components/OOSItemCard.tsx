@@ -39,7 +39,7 @@ const OOSItemCard = ({item}: { item: Item}) => {
         ?   <Button variant="outline" disabled>
                 Requested <Check /> 
             </Button>
-        : <Button variant="outline" onClick={handleRequest}>
+        : <Button variant="outline" onClick={() => handleRequest()}>
             Request
         </Button>}
       </CardFooter>

@@ -1,6 +1,6 @@
 import ItemCard from "../components/ItemCard"
 import { Item } from "../schema/item"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import "./styles/minimart.css";
 import { User } from "@/schema/User";
@@ -16,8 +16,15 @@ const Minimart = ({user}: {user: User}) => {
   }
 
 
-  const [items, setItems] = useState<Item[]>([defaultItem, defaultItem, defaultItem, defaultItem])
-  setItems([defaultItem, defaultItem, defaultItem, defaultItem]);
+  const [items, setItems] = useState<Item[]>([])
+
+  useEffect(() => {
+    const retrieveItems = async () => {
+      setItems([defaultItem, defaultItem, defaultItem, defaultItem]);
+    }
+    retrieveItems();
+  }, [])
+  
 
   return (
     <div className="h-full w-full flex flex-wrap justify-evenly miniMartContainer">

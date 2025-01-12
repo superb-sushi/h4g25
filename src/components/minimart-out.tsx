@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import OOSItemCard from "./OOSItemCard"
 import { Item } from "@/schema/item"
 
@@ -11,9 +11,14 @@ const MinimartOut = () => {
     price: 4.50
   }
 
-
-  const [items, setItems] = useState<Item[]>([defaultItem, defaultItem, defaultItem, defaultItem])
-  setItems([defaultItem, defaultItem, defaultItem, defaultItem]);
+  const [items, setItems] = useState<Item[]>([])
+  
+  useEffect(() => {
+      const retrieveItems = async () => {
+        setItems([defaultItem, defaultItem, defaultItem, defaultItem]);
+      }
+      retrieveItems();
+    }, [])
 
   return (
     <div className="h-full w-full flex flex-wrap justify-evenly miniMartContainer">

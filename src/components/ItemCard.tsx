@@ -20,7 +20,7 @@ import {
   
 
 import { Item } from "../schema/item"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import "./styles/ItemCard.css";
 
@@ -35,10 +35,16 @@ import { User } from "@/schema/User";
 
 const ItemCard = ({user, item}: {user:User, item: Item}) => {
     
-    const [stock, setStock] = useState<number>(item.quantity);
-    setStock(item.quantity);
+    const [stock, setStock] = useState<number>(0);
     const [quantity, setQuantity] = useState<number>(1);
     const [totalPx, setTotalPx] = useState<number>(item.price);
+
+    useEffect(() => {
+        const initStock = () => {
+          setStock(item.quantity);
+        }
+        initStock();
+      }, [])
 
     const handleChangeQuantity = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newQuantity = (e.target.value as unknown) as number;
@@ -89,8 +95,8 @@ const ItemCard = ({user, item}: {user:User, item: Item}) => {
             </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancel}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handlePurchase} disabled={totalPx > user.balance || quantity > stock}>Confirm</AlertDialogAction>
+            <AlertDialogCancel onClick={() => handleCancel()}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => handlePurchase()} disabled={totalPx > user.balance || quantity > stock}>Confirm</AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>
     <Card className="miniMartCardContainer hover:bg-zinc-100 duration-200">
