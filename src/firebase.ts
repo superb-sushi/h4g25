@@ -27,7 +27,6 @@ const storage = getStorage();
 
 // Initialize Firebase Authentication and get a reference to the service
 export const auth = getAuth(app);
-await setPersistence(auth, browserSessionPersistence);
 
 export async function signUp(emailInput: string, passwordInput: string) {
     console.log("signing user up...")
@@ -40,6 +39,7 @@ export async function signUp(emailInput: string, passwordInput: string) {
                 balance: 0,
                 isAdmin: false
             } as User)
+        await setPersistence(auth, browserSessionPersistence);
     } catch (err) {
         console.log(err);
     }
@@ -47,8 +47,8 @@ export async function signUp(emailInput: string, passwordInput: string) {
 
 export async function authenticateSignIn(email: string, password:string) {
     // firebase/auth login
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    console.log(userCredential);
+    await signInWithEmailAndPassword(auth, email, password);
+    await setPersistence(auth, browserSessionPersistence);
 }
 
 export function signUserOut() {
