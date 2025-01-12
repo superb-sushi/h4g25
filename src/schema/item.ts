@@ -3,5 +3,6 @@ export interface Item {
     isAvailable: boolean,
     quantity: number,
     name: string,
-    price: number
+    price: number,
+    image: string
 }

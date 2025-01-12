@@ -1,28 +1,12 @@
-import { useEffect, useState } from "react"
 import OOSItemCard from "./OOSItemCard"
 import { Item } from "@/schema/item"
+import { Package } from "lucide-react";
 
-const MinimartOut = () => {
-  const defaultItem = {
-    id: "",
-    isAvailable: false,
-    quantity: 1,
-    name: "Cinammon Rolls",
-    price: 4.50
-  }
-
-  const [items, setItems] = useState<Item[]>([])
-  
-  useEffect(() => {
-      const retrieveItems = async () => {
-        setItems([defaultItem, defaultItem, defaultItem, defaultItem]);
-      }
-      retrieveItems();
-    }, [])
+const MinimartOut = ({items}: {items: Item[]}) => {
 
   return (
     <div className="h-full w-full flex flex-wrap justify-evenly miniMartContainer">
-      {items.filter(item => !item.isAvailable).map(item => <OOSItemCard item={item} />)}
+      {items.filter(item => !item.isAvailable).length == 0 ? <div className="w-full h-full flex justify-center items-center text-zinc-400"><Package className="pr-1"/>All in Stock</div> :items.filter(item => !item.isAvailable).map(item => <OOSItemCard item={item} />)}
     </div>
   )
 }

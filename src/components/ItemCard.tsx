@@ -24,7 +24,6 @@ import { useEffect, useState } from "react"
 
 import "./styles/ItemCard.css";
 
-import scr from "../assets/scr.jpg";
 import { Button } from "./ui/button";
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -32,6 +31,7 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 
 import { User } from "@/schema/User";
+import { getImageUrl } from "@/firebase";
 
 const ItemCard = ({user, item}: {user:User, item: Item}) => {
     
@@ -45,6 +45,15 @@ const ItemCard = ({user, item}: {user:User, item: Item}) => {
         }
         initStock();
       }, [])
+
+    const [imageUrl, setImageUrl] = useState<string>("");
+    useEffect(() => {
+        const getImage = async () => {
+          const url = await getImageUrl(item.image);
+            setImageUrl(url);
+        }
+        getImage();
+      }, [item.image])
 
     const handleChangeQuantity = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newQuantity = (e.target.value as unknown) as number;
@@ -105,7 +114,7 @@ const ItemCard = ({user, item}: {user:User, item: Item}) => {
         <CardDescription>S${item.price.toFixed(2)}</CardDescription>
       </CardHeader>
       <CardContent>
-        <img src={scr} className="itemImg rounded-xl"/>
+        <img src={imageUrl} className="itemImg rounded-xl"/>
       </CardContent>
       <CardFooter>
         <div className="text-sm font-normal text-neutral-400">{stock} in-stock!</div>

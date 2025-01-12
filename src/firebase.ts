@@ -1,8 +1,10 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, getFirestore, setDoc, updateDoc } from "firebase/firestore";
 import { User } from "./schema/User";
+import { getDownloadURL, getStorage, ref, StorageReference, uploadBytes } from "firebase/storage";
+import { Item } from "./schema/item";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -18,6 +20,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 const db = getFirestore();
+
+const storage = getStorage();
+
 
 
 // Initialize Firebase Authentication and get a reference to the service
@@ -58,8 +63,8 @@ export function getCurrentUser() {
     return auth.currentUser;
 }
 
-export async function getUserData(id: string) {
-    const docRef = doc(db, "users", id);
+export async function getUserData(email: string) {
+    const docRef = doc(db, "users", email);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
@@ -68,5 +73,49 @@ export async function getUserData(id: string) {
     } else {
         // docSnap.data() will be undefined in this case
         console.log("No such document!");
+    }
+}
+
+export async function readItems() {
+    const querySnapshot = await getDocs(collection(db, "items"));
+    console.log("Retrieved all minimart items!");
+    return querySnapshot;
+}
+
+export async function readUsers() {
+    const querySnapshot = await getDocs(collection(db, "users"));
+    console.log("Retrieved all users!");
+    return querySnapshot;
+}
+
+export async function getImageUrl(imageRef: string) {
+    const url = await getDownloadURL(ref(storage, imageRef));
+    return url;
+}
+
+export async function uploadImage(itemImage: File) {
+    let imageRef = ref(storage, "itemImages/default/mwhicon.jpg");
+    if (itemImage) {
+        imageRef = ref(storage, `itemImages/${itemImage.name}`);
+        await uploadBytes(imageRef, itemImage);
+    }
+    return imageRef;
+}
+
+export async function uploadItem(item: Item, imageRef:StorageReference) {
+    //Error thrown here with regards to the Time --> RangeError: Invalid time value
+    await addDoc(collection(db, "items"), {
+        ...item,
+        ["image"]: imageRef.fullPath,
+    });
+}
+
+export async function updateUserBalance(email: string, newBalance: number) {
+    try {
+        await updateDoc(doc(db, "users", email), {
+            balance: newBalance
+        })
+    } catch (err) {
+        console.error(err);
     }
 }

@@ -15,7 +15,8 @@ import Voucher from "../components/voucher";
 import VoucherAuction from "../components/voucher-auction";
 import Transaction from "../components/transaction";
 import { User } from "@/schema/User"
-import { getCurrentUser, getUserData } from "@/firebase"
+import { getCurrentUser, getUserData, readItems } from "@/firebase"
+import { Item } from "@/schema/item"
 
 const HomePage = () => {
 
@@ -44,6 +45,24 @@ const HomePage = () => {
     getUser();
   },[])
 
+  const [items, setItems] = useState<Item[]>([])
+
+  useEffect(() => {
+    const retrieveItems = async () => {
+      try {
+        const i = await readItems();
+        const itemsTemp = i.docs.map(doc => ({
+            ...doc.data(),
+            id: doc.id,
+        } as Item))
+        setItems(itemsTemp);
+      } catch (err) {
+          console.error(err);
+      }
+    }
+    retrieveItems();
+  }, [])
+
   return (
     <SidebarProvider> 
       <AppSidebar user={user} setStates={[setIsMA, setIsMO, setIsV, setIsVA, setIsH]}/>
@@ -55,7 +74,7 @@ const HomePage = () => {
           </div>
         </header>
         <div className="homeContent flex-1 flex items-center justify-center">
-          {isMA ? <Minimart user={user}/> : isMO ? <MinimartOut /> : isV ? <Voucher/> : isVA ? <VoucherAuction /> : isH ? <Transaction /> : <></>}
+          {isMA ? <Minimart items={items} user={user}/> : isMO ? <MinimartOut items={items}/> : isV ? <Voucher/> : isVA ? <VoucherAuction /> : isH ? <Transaction /> : <></>}
         </div>
       </SidebarInset>
     </SidebarProvider>
