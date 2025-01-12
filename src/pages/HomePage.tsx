@@ -17,6 +17,7 @@ import Transaction from "../components/transaction";
 import { User } from "@/schema/User"
 import { getCurrentUser, getUserData, readItems } from "@/firebase"
 import { Item } from "@/schema/item"
+import { getAuth, onAuthStateChanged, User as U } from "firebase/auth"
 
 const HomePage = () => {
 
@@ -36,14 +37,28 @@ const HomePage = () => {
 
   const [user, setUser] = useState<User>(defaultUser);
 
-  useEffect( () => {
-    const getUser = async () => {
-      const email = await getCurrentUser()!.email!;
-      const user = await getUserData(email) as User;
-      setUser(user)
-    }
-    getUser();
-  },[])
+  useEffect(() => {
+    const auth = getAuth();
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const getUser = async () => {
+          const email = await getCurrentUser()!.email!;
+          const user = await getUserData(email) as User;
+          setUser(user)
+        }
+        getUser();
+      } else {
+        console.log("No current user");
+      }
+    });
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, []);
 
   const [items, setItems] = useState<Item[]>([])
 

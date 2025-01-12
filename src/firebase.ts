@@ -31,6 +31,7 @@ export const auth = getAuth(app);
 export async function signUp(emailInput: string, passwordInput: string) {
     console.log("signing user up...")
     try {
+        await setPersistence(auth, browserSessionPersistence);
         await createUserWithEmailAndPassword(auth, emailInput, passwordInput); // createUserWithEmailAndPassword automatically signs user in
             await setDoc(doc(db, "users", emailInput), {
                 email: emailInput,
@@ -39,7 +40,6 @@ export async function signUp(emailInput: string, passwordInput: string) {
                 balance: 0,
                 isAdmin: false
             } as User)
-        await setPersistence(auth, browserSessionPersistence);
     } catch (err) {
         console.log(err);
     }
@@ -47,8 +47,8 @@ export async function signUp(emailInput: string, passwordInput: string) {
 
 export async function authenticateSignIn(email: string, password:string) {
     // firebase/auth login
-    await signInWithEmailAndPassword(auth, email, password);
     await setPersistence(auth, browserSessionPersistence);
+    await signInWithEmailAndPassword(auth, email, password);
 }
 
 export function signUserOut() {
