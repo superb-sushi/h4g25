@@ -169,8 +169,8 @@ export async function purchaseItem(item: Item, totalPx: number, quantity: number
     const newBalance = user.balance - totalPx;
     updateUserBalance(user.email, newBalance);
 
-    //Update User transaction history - transaction code is as such: itemId_quantity
-    const newTransaction = item.id + "_" + quantity;
+    //Update User transaction history - transaction code is as such: itemName_quantity
+    const newTransaction = item.name + "_" + quantity;
     updateUserTransactionHistory(0, user.email, newTransaction);
 }
 
@@ -180,6 +180,18 @@ export async function updateItemRequests(email: string, item: Item) {
             requests: item.requests.includes(email) ? item.requests : arrayUnion(email)
         })
         console.log(`Request added to product ${item.id}!`)
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+export async function updateItemQuantity(item: Item, quantityToAdd: number) {
+    try {
+        const newQuantity = item.quantity + quantityToAdd;
+        await updateDoc(doc(db, "items", item.id), {
+            quantity: newQuantity,
+            isAvailable: !(newQuantity == 0)
+        })
     } catch (err) {
         console.error(err);
     }

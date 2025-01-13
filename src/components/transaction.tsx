@@ -1,6 +1,10 @@
-const Transaction = () => {
+import {} from "../firebase";
+import DataTable from "./data-table";
+import { User } from "../schema/User";
+
+const Transaction = ({user}: {user: User}) => {
   return (
-    <div>transaction</div>
+    <DataTable user={user}/>
   )
 }
 
