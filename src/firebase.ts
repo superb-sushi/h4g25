@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { browserSessionPersistence, createUserWithEmailAndPassword, getAuth, setPersistence, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { addDoc, arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, getFirestore, setDoc, updateDoc } from "firebase/firestore";
+import { addDoc, arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, getFirestore, setDoc, Timestamp, updateDoc } from "firebase/firestore";
 import { User } from "./schema/User";
 import { getDownloadURL, getStorage, ref, StorageReference, uploadBytes } from "firebase/storage";
 import { Item } from "./schema/item";
@@ -117,7 +117,6 @@ export async function uploadImage(itemImage: File) {
 }
 
 export async function uploadItem(item: Item, imageRef:StorageReference) {
-    //Error thrown here with regards to the Time --> RangeError: Invalid time value
     await addDoc(collection(db, "items"), {
         ...item,
         ["image"]: imageRef.fullPath,
@@ -169,8 +168,8 @@ export async function purchaseItem(item: Item, totalPx: number, quantity: number
     const newBalance = user.balance - totalPx;
     updateUserBalance(user.email, newBalance);
 
-    //Update User transaction history - transaction code is as such: itemName_quantity
-    const newTransaction = item.name + "_" + quantity;
+    //Update User transaction history - transaction code is as such: time_itemName_quantity_isDelivered
+    const newTransaction = Timestamp.now().seconds + "_" + item.name + "_" + quantity + "_false";
     updateUserTransactionHistory(0, user.email, newTransaction);
 }
 

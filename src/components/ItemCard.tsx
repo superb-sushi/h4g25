@@ -73,7 +73,7 @@ const ItemCard = ({user, item}: {user:User, item: Item}) => {
           purchaseItem(item, totalPx, quantity, user);
           toast({
             title: "Purchase Successful!",
-            description: `Your transaction of "${quantity} ${item.name}(s) has been recorded! Please reload the page to reflect your new balance!"`
+            description: `Your transaction of "${quantity} ${item.name}(s)" has been recorded! Please reload the page to reflect your new balance!`
           })
         } catch (e) {
             toast({
