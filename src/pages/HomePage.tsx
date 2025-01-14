@@ -89,7 +89,7 @@ const HomePage = () => {
           </div>
         </header>
         <div className="homeContent flex-1 flex items-center justify-center">
-          {isMA ? <Minimart items={items} user={user}/> : isMO ? <MinimartOut items={items} user={user}/> : isV ? <Voucher/> : isVA ? <VoucherAuction /> : isH ? <Transaction user={user}/> : <></>}
+          {isMA ? <Minimart items={items} user={user}/> : isMO ? <MinimartOut items={items} user={user}/> : isV ? <Voucher user={user}/> : isVA ? <VoucherAuction /> : isH ? <Transaction user={user}/> : <></>}
         </div>
       </SidebarInset>
     </SidebarProvider>

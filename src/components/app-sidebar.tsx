@@ -28,47 +28,47 @@ export function AppSidebar({user, setStates} : { user: User, setStates: Array<Re
     navMain: [
       {
         title: "Minimart",
-        url: "#",
+        url: "#minimart",
         icon: ShoppingBasket,
         isActive: true,
         items: [
           {
             title: "Available",
-            url: "#",
+            url: "#available",
             setters: setStates
           },
           {
             title: "Out of Stock",
-            url: "#",
+            url: "#outofstock",
             setters: setStates
           },
         ],
       },
       {
         title: "Vouchers",
-        url: "#",
+        url: "#vouchers",
         icon: Ticket,
         items: [
           {
             title: "Owned",
-            url: "#",
+            url: "#owned",
             setters: setStates
           },
           {
             title: "Auction",
-            url: "#",
+            url: "#auction",
             setters: setStates
           },
         ],
       },
       {
         title: "History",
-        url: "#",
+        url: "#history",
         icon: BookOpen,
         items: [
           {
             title: "Past Transactions",
-            url: "#",
+            url: "#pasttransactions",
             setters: setStates
           },
         ],

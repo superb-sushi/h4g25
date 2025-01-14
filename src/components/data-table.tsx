@@ -9,6 +9,8 @@ const DataTable = () => {
 
     const [ths, setThs] = useState<Array<string[]>>([]);
 
+    const [isChecked, setIsChecked] = useState<boolean>(false);
+
     // useEffect(() => {
     //     if (thArr.length == 0) {
     //         user.transactionHistory.map(th => {
@@ -43,7 +45,7 @@ const DataTable = () => {
     }, [])
 
     function handleCheck(seconds: string, item: string, quantity: string, email: string) {
-        console.log("Checked!");
+        setIsChecked(true);
         const new_tH = seconds + "_" + item + "_" + quantity + "_true";
         const old_tH = seconds + "_" + item + "_" + quantity + "_false";
         const updateTH = async () => {
@@ -72,7 +74,7 @@ const DataTable = () => {
                     <Label className="transactionItemName w-1/5 text-md font-normal pl-2.5 min-w-40">{th[1]}</Label>
                     <Label className="transactionEmail w-1/5 text-md font-normal min-w-40">{th[4]}</Label>
                     <Label className="transactionQuantity w-1/5 text-md font-normal min-w-40 pl-9">{th[2]}</Label>
-                    <Label className="pl-3.5"><Checkbox className="h-6 w-6" onCheckedChange={() => handleCheck(th[0], th[1], th[2], th[4])}/></Label>
+                    <Label className="pl-3.5"><Checkbox disabled={isChecked} className="h-6 w-6" onCheckedChange={() => handleCheck(th[0], th[1], th[2], th[4])}/></Label>
                 </div>
             )}
         </div>

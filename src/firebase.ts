@@ -5,6 +5,7 @@ import { addDoc, arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, getF
 import { User } from "./schema/User";
 import { getDownloadURL, getStorage, ref, StorageReference, uploadBytes } from "firebase/storage";
 import { Item } from "./schema/item";
+import { Voucher } from "./schema/Voucher";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -155,14 +156,15 @@ export async function purchaseItem(item: Item, totalPx: number, quantity: number
 
     //Update item quantity
     const newQuantity = item.quantity - quantity;
-    try {
-        await updateDoc(doc(db, "items", item.id), {
-            quantity: newQuantity,
-            isAvailable: !(newQuantity == 0)
-        })
-    } catch (err) {
-        console.error(err);
+    if (newQuantity < 0) {
+        console.log("Quantity Error");
+        throw new Error("There's not enough stock for this item! Please wait till there's a restock!");
     }
+
+    await updateDoc(doc(db, "items", item.id), {
+        quantity: newQuantity,
+        isAvailable: !(newQuantity <= 0)
+    })
 
     //Update User balance
     const newBalance = user.balance - totalPx;
@@ -194,4 +196,67 @@ export async function updateItemQuantity(item: Item, quantityToAdd: number) {
     } catch (err) {
         console.error(err);
     }
+}
+
+export async function uploadVoucher(voucher: Voucher) {
+    await addDoc(collection(db, "voucher"), {
+        ...voucher,
+    });
+}
+
+export async function addVoucherToUser(voucher: string, user: User) {
+    await updateDoc(doc(db, "users", user.email), {
+        vouchers: arrayUnion(voucher)
+    })
+    console.log(`Added ${voucher} to user: email!`)
+}
+
+export async function obtainVoucher(voucher: Voucher, user: User, pricePaid: number) {
+    //Update Voucher Info
+    try {
+        await updateDoc(doc(db, "vouchers", voucher.id), {
+            owner: user.email,
+            hasOwner: true,
+        })
+    } catch (err) {
+        console.error(err);
+    }
+
+    //Update User balance
+    const newBalance = user.balance - pricePaid;
+    updateUserBalance(user.email, newBalance);
+
+    //Update User vouchers - id_quantity_owner_itemName_hasOwner_isRedeemed_itemId
+    const voucherToAdd = voucher.id + "_" + voucher.quantity + "_" + voucher.owner + "_" + voucher.item + "_" + voucher.hasOwner + "_" + voucher.isRedeemed + voucher.itemId;
+    addVoucherToUser(voucherToAdd, user);
+}
+
+export async function removeVoucherFromUser(voucher: string, user: User) {
+    await updateDoc(doc(db, "users", user.email), {
+        vouchers: arrayRemove(voucher)
+    })
+    console.log(`Removed ${voucher} from user: email!`)
+}
+
+export async function useVoucherFromUser(user: User, voucher: Voucher) {
+    //Simulate Purchase of Item
+    const item = await getItemData(voucher.itemId) as Item;
+    try {
+        purchaseItem(item, 0, voucher.quantity, user);
+    } catch (e) {
+        console.log("CAught ERROR!" + e);
+        throw(e);
+    }
+
+    //Update Voucher Info
+    await updateDoc(doc(db, "vouchers", voucher.id), {
+        isRedeemed: true,
+    })
+
+    //Update User vouchers
+    const voucherToRemove = voucher.id + "_" + voucher.quantity + "_" + voucher.owner + "_" + voucher.item + "_" + voucher.hasOwner + "_" + false + "_" + voucher.itemId;
+    const voucherToAdd = voucher.id + "_" + voucher.quantity + "_" + voucher.owner + "_" + voucher.item + "_" + voucher.hasOwner + "_" + true + "_" + voucher.itemId;
+    removeVoucherFromUser(voucherToRemove, user);
+    addVoucherToUser(voucherToAdd, user);
+
 }

@@ -1,4 +1,9 @@
 export interface Voucher {
     id: string,
-    value: number,
+    quantity: number,
+    owner: string,
+    item: string,
+    hasOwner: boolean,
+    isRedeemed: boolean,
+    itemId: string
 }
