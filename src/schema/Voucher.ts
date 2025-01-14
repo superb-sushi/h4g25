@@ -5,5 +5,6 @@ export interface Voucher {
     item: string,
     hasOwner: boolean,
     isRedeemed: boolean,
-    itemId: string
+    itemId: string,
+    highestBid: number,
 }

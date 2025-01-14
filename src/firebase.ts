@@ -198,6 +198,27 @@ export async function updateItemQuantity(item: Item, quantityToAdd: number) {
     }
 }
 
+export async function readVouchers() {
+    const querySnapshot = await getDocs(collection(db, "vouchers"));
+    console.log("Retrieved all vouchers!");
+    return querySnapshot;
+}
+
+export async function updateVoucherHighestBid(voucher: Voucher, bid: number, user: User) {
+    try {
+        await updateDoc(doc(db, "vouchers", voucher.id), {
+            highestBid: bid
+        })
+        console.log(`Update highest bid for voucher ${voucher.id} to S$${bid}!`);
+        await updateDoc(doc(db, "vouchers", voucher.id), {
+            owner: user.email
+        })
+        console.log(`Current highest bidder for voucher ${voucher.id} is ${user.email}!`);
+    } catch (err) {
+        throw err;
+    }
+}
+
 export async function uploadVoucher(voucher: Voucher) {
     await addDoc(collection(db, "voucher"), {
         ...voucher,
@@ -211,7 +232,7 @@ export async function addVoucherToUser(voucher: string, user: User) {
     console.log(`Added ${voucher} to user: email!`)
 }
 
-export async function obtainVoucher(voucher: Voucher, user: User, pricePaid: number) {
+export async function allocateVoucher(voucher: Voucher, user: User, pricePaid: number) {
     //Update Voucher Info
     try {
         await updateDoc(doc(db, "vouchers", voucher.id), {
@@ -241,22 +262,18 @@ export async function removeVoucherFromUser(voucher: string, user: User) {
 export async function useVoucherFromUser(user: User, voucher: Voucher) {
     //Simulate Purchase of Item
     const item = await getItemData(voucher.itemId) as Item;
-    try {
-        purchaseItem(item, 0, voucher.quantity, user);
-    } catch (e) {
-        console.log("CAught ERROR!" + e);
-        throw(e);
-    }
+    return purchaseItem(item, 0, voucher.quantity, user).then(() => {
+        //Update Voucher Info
+        // await updateDoc(doc(db, "vouchers", voucher.id), {
+        //     isRedeemed: true,
+        // })
 
-    //Update Voucher Info
-    await updateDoc(doc(db, "vouchers", voucher.id), {
-        isRedeemed: true,
+        //Update User vouchers
+        const voucherToRemove = voucher.id + "_" + voucher.quantity + "_" + voucher.owner + "_" + voucher.item + "_" + voucher.hasOwner + "_" + false + "_" + voucher.itemId;
+        const voucherToAdd = voucher.id + "_" + voucher.quantity + "_" + voucher.owner + "_" + voucher.item + "_" + voucher.hasOwner + "_" + true + "_" + voucher.itemId;
+        removeVoucherFromUser(voucherToRemove, user);
+        addVoucherToUser(voucherToAdd, user);
+    }).catch(e => {
+        throw e;
     })
-
-    //Update User vouchers
-    const voucherToRemove = voucher.id + "_" + voucher.quantity + "_" + voucher.owner + "_" + voucher.item + "_" + voucher.hasOwner + "_" + false + "_" + voucher.itemId;
-    const voucherToAdd = voucher.id + "_" + voucher.quantity + "_" + voucher.owner + "_" + voucher.item + "_" + voucher.hasOwner + "_" + true + "_" + voucher.itemId;
-    removeVoucherFromUser(voucherToRemove, user);
-    addVoucherToUser(voucherToAdd, user);
-
 }

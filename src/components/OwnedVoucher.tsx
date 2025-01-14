@@ -1,7 +1,7 @@
 import { Voucher } from '@/schema/Voucher'
 import { BadgeDollarSign } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useToast } from "@/hooks/use-toast"
 import { useVoucherFromUser } from '@/firebase';
@@ -11,27 +11,25 @@ const OwnedVoucher = ({voucher, index, user}: {voucher: Voucher, index: number, 
 
     const { toast } = useToast();
 
-    const [isRedeemed, setIsRedeemed] = useState<boolean>(voucher.isRedeemed);
+    const [isRedeemed, setIsRedeemed] = useState<boolean>(false);
+
+    useEffect(() => {
+      setIsRedeemed(voucher.isRedeemed);
+    }, [])
 
     const handleCheck = () => {
         setIsRedeemed(true);
-        try {
-          const performRedemption = async () => {
-            await useVoucherFromUser(user, voucher);
-            toast({
-                title: "Redemption Successful!",
-                description: `Your redemption of ${voucher.quantity}x ${voucher.item} is successful!`
-            })
-          }
-          performRedemption();
-        } catch (e) {
-          console.log("Quantity Error Caught");
+        useVoucherFromUser(user, voucher).then(() => {
+          toast({
+            title: "Redemption Successful!",
+            description: `Your redemption of ${voucher.quantity}x ${voucher.item} is successful!`
+          })
+        }).catch(e => {
             toast({
                 title: "Redemption Error",
                 description: `${(e as Error).message}`
             })
-        }
-        
+        })        
     }
 
   return (

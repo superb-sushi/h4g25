@@ -52,7 +52,7 @@ const VoucherPage = ({user}: {user: User}) => {
   }, [])
 
   return (
-    <div className="ownTransactions h-full w-full justify-center flex items-center">
+    <div className="ownTransactions w-full justify-center flex items-center">
         <Card className="w-[580px]">
           <CardHeader>
             <CardTitle>Your Vouchers</CardTitle>
