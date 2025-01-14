@@ -34,7 +34,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-import { signUserOut, uploadImage, uploadItem, readUsers, updateUserBalance } from "../firebase";
+import { signUserOut, uploadImage, uploadItem, readUsers, updateUserBalance, readItems, uploadVoucher } from "../firebase";
 import { Link } from "react-router-dom";
 import { User } from "../schema/User";
 import mwhicon from "../assets/mwhicon.jpg"
@@ -51,6 +51,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Button } from "./ui/button"
+import { Voucher } from "@/schema/Voucher"
 
 export function NavUser({
   user,
@@ -67,12 +68,96 @@ export function NavUser({
 
   const [isAdd, setIsAdd] = useState<boolean>(false);
   const [isUpdate, setIsUpdate] = useState<boolean>(false);
+  const [isAddVoucher, setIsAddVoucher] = useState<boolean>(false);
 
+  const [items, setItems] = useState<Item[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+
+  const defaultVoucher = {
+    id: "",
+    hasOwner: false,
+    quantity: 0,
+    item: "",
+    highestBid: 0,
+    itemId: "",
+    owner: "",
+    isRedeemed: false
+  } as Voucher;
+
+  const [voucherToUpload, setVoucherToUpload] = useState<Voucher>(defaultVoucher);
+
+  const handleAddVoucherClick = () => {
+    setIsUpdate(false);
+    setIsAdd(false);
+    setIsAddVoucher(true);
+    const getItems = async () => {
+      try {
+        const i = await readItems();
+        const itemsTemp = i.docs.map(doc => ({
+          ...doc.data(),
+      } as Item))
+        setItems(itemsTemp);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    getItems();
+  }
+
+  const [itemToUpload, setItemToUpload] = useState<Item>();
+
+  const handleSelectItem = (item: string) => {
+    const i = items.filter(i => i.name == item)[0];
+    console.log(i.name);
+    setVoucherToUpload(v => ({...v, item: i.name}));
+    console.log(i.id)
+    setVoucherToUpload(v => ({...v, itemId: i.id}));
+    setItemToUpload(i);
+  }
+
+  const handleVoucherChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setVoucherToUpload(v => ({...v, [e.target.id]: (e.target.id == "quantity") || (e.target.id == "highestBid") ? Number(e.target.value) : e.target.value}));
+    console.log(e.target.id + ": " + e.target.value)
+  };
+
+  const handleVoucherUpload = () => {
+    if (itemToUpload == undefined) {
+      toast({
+        title: "Voucher Upload Error",
+        description: "Please select and item first!"
+      })
+      return;
+    }
+    if (voucherToUpload.quantity < 1 || !Number.isInteger(voucherToUpload.quantity)) {
+      console.log(voucherToUpload.quantity);
+      toast({
+        title: "Voucher Upload Error",
+        description: "Please select enter an appropriate quantity!"
+      })
+      return;
+    }
+    try {
+      const uploadVoucherLive = async () => {
+        await uploadVoucher(voucherToUpload);
+      }
+      uploadVoucherLive();
+      toast({
+        title: "Voucher Upload Successful",
+        description: `"Voucher for ${voucherToUpload.quantity}x ${voucherToUpload.item} has been uploaded!`
+      });
+    } catch (err) {
+      console.log(err);
+        toast({
+          title: "Voucher Upload Error",
+          description: `${(err as Error).toString()}`
+        });
+    }
+  }
 
   const handleUpdateClick = () => {
     setIsUpdate(true);
     setIsAdd(false);
+    setIsAddVoucher(false);
     const getUser = async () => {
       const retrieveUsers = async () => {
           try {
@@ -93,6 +178,7 @@ export function NavUser({
   const handleAddClick = () => {
     setIsUpdate(false);
     setIsAdd(true);
+    setIsAddVoucher(false);
   }
 
   const defaultItem = {
@@ -116,7 +202,7 @@ export function NavUser({
   const [itemImage, setItemImage] = useState<File | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setItem(item => ({...item, [e.target.id]: (e.target.id == "quantity") || (e.target.id == "price") ? (e.target.value as unknown) as number : e.target.value}));
+      setItem(item => ({...item, [e.target.id]: (e.target.id == "quantity") || (e.target.id == "price") ? Number(e.target.value) : e.target.value}));
   };
 
   // to handle image upload
@@ -263,6 +349,39 @@ export function NavUser({
             <AlertDialogAction onClick={() => handleUpdateBalance()}>Upload</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
+        : isAddVoucher ?
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Add Voucher</AlertDialogTitle>
+            <AlertDialogDescription>
+              <div className="flex flex-col justify-center items-center">
+                <div className="grid w-full max-w-sm items-center gap-1.5 pt-2.5">
+                  <Select onValueChange={item => handleSelectItem(item)}>
+                    <div className="text-zinc-800 font-bold">Minimart Item</div>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Item"/>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {items.map(item => <SelectItem value={item.name}>{item.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid w-full max-w-sm items-center gap-1.5 pt-2.5">
+                  <Label htmlFor="highestBid" className="text-zinc-800">Starting Price</Label>
+                  <Input type="number" id="highestBid" placeholder="2.50" min={0.10} onChange={e => handleVoucherChange(e)}/>
+                </div>
+                <div className="grid w-full max-w-sm items-center gap-1.5 pt-2.5">
+                  <Label htmlFor="quantity" className="text-zinc-800">Quantity</Label>
+                  <Input type="number" id="quantity" placeholder="1" min={1} step={1} onChange={e => handleVoucherChange(e)}/>
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => handleVoucherUpload()}>Upload</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
         : <></>
       }
 
@@ -303,6 +422,11 @@ export function NavUser({
                     <div>Add Item</div>
                   </AlertDialogTrigger>
                 </DropdownMenuItem> 
+                <DropdownMenuItem>
+                <AlertDialogTrigger asChild onClick={() => handleAddVoucherClick()}>
+                    <div>Add Voucher</div>
+                  </AlertDialogTrigger>
+                </DropdownMenuItem>
               </>
               : <></>}
               <DropdownMenuItem>

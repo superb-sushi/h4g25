@@ -19,6 +19,7 @@ const TransactionInfo = ({th}: {th: Array<string>}) => {
             await updateUserTransactionHistory(1, email, old_tH);
         }
         updateTH();
+        setIsChecked(true);
     }
 
   return (

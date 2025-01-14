@@ -1,6 +1,7 @@
 import { Voucher } from "../schema/Voucher";
 import {
-    TicketPlus
+    TicketPlus,
+    TicketCheck
 } from "lucide-react";
 
 import {
@@ -23,7 +24,7 @@ import { useState } from "react";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 
-import { updateVoucherHighestBid } from "@/firebase";  
+import { allocateVoucher, updateVoucherHighestBid } from "@/firebase";  
 import { User } from "@/schema/User";
 
 import { useToast } from "@/hooks/use-toast"
@@ -40,7 +41,7 @@ const VoucherCard = ({voucher, user}: {voucher: Voucher, user: User}) => {
             setHighestBid(currBid);
             toast({
                 title: "Bid Successful",
-                description: `Your bid of S$${currBid} is now the highest bid!`
+                description: `Your bid of S$${Number(currBid).toFixed(2)} is now the highest bid!`
             })
             setCurrBid(0.1);
         }).catch(e => {
@@ -49,6 +50,24 @@ const VoucherCard = ({voucher, user}: {voucher: Voucher, user: User}) => {
                 description: `${e.message}`
             })
         })
+    }
+
+    const handleEndAuction = () => {
+        try {
+            const endAuction = async () => {
+                await allocateVoucher(voucher);
+            }
+            endAuction();
+            toast({
+                title: "Auction Ended Successful",
+                description: "The voucher has been allocated to the highest bidder!"
+            })
+        } catch (e) {
+            toast({
+                title: "Auction End Error",
+                description: `${(e as Error).message}`
+            })
+        }
     }
 
   return (
@@ -62,9 +81,10 @@ const VoucherCard = ({voucher, user}: {voucher: Voucher, user: User}) => {
                 <p>This voucher can be used to redeem <strong>{voucher.quantity}x {voucher.item}</strong>.</p>
             </CardContent>
             <CardFooter>
+            <div className="flex gap-1 items-center">
                 <Popover>
                     <PopoverTrigger>
-                    <Button>Bid {<TicketPlus />}</Button>
+                            <Button>Bid {<TicketPlus />}</Button>
                     </PopoverTrigger>
                     <PopoverContent>
                         <Label htmlFor="bidAmount" className="text-zinc-800">Bid Amount</Label>
@@ -75,9 +95,11 @@ const VoucherCard = ({voucher, user}: {voucher: Voucher, user: User}) => {
                         <Button className="mt-4" disabled={currBid <= highestBid} onClick={handleBid}>Confirm</Button>
                     </PopoverContent>
                 </Popover>
+                {user.isAdmin ? <Button variant="outline" onClick={handleEndAuction}>End Auction {<TicketCheck />}</Button> : <></>}
+            </div>
             </CardFooter>
         </div>
-        <div className="text-5xl font-bold pr-4">S${highestBid}</div>
+        <div className="text-5xl font-bold pr-4">S${Number(highestBid).toFixed(2)}</div>
     </Card>
   )
 }

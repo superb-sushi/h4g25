@@ -79,8 +79,11 @@ export async function getUserData(email: string) {
 }
 
 export async function getItemData(id: string) {
+    console.log(0)
     const docRef = doc(db, "items", id);
+    console.log(1)
     const docSnap = await getDoc(docRef);
+    console.log(2)
 
     if (docSnap.exists()) {
         console.log("Item data retrieved:", docSnap.data());
@@ -118,10 +121,19 @@ export async function uploadImage(itemImage: File) {
 }
 
 export async function uploadItem(item: Item, imageRef:StorageReference) {
-    await addDoc(collection(db, "items"), {
+    const docRef = await addDoc(collection(db, "items"), {
         ...item,
         ["image"]: imageRef.fullPath,
+        requests: []
     });
+    console.log("Item Added!");
+    try {
+        await updateDoc(doc(db, "items", docRef.id), {
+            id: docRef.id
+        })
+    } catch (err) {
+        console.error(err);
+    }
 }
 
 export async function updateUserBalance(email: string, newBalance: number) {
@@ -220,7 +232,7 @@ export async function updateVoucherHighestBid(voucher: Voucher, bid: number, use
 }
 
 export async function uploadVoucher(voucher: Voucher) {
-    await addDoc(collection(db, "voucher"), {
+    await addDoc(collection(db, "vouchers"), {
         ...voucher,
     });
 }
@@ -232,11 +244,10 @@ export async function addVoucherToUser(voucher: string, user: User) {
     console.log(`Added ${voucher} to user: email!`)
 }
 
-export async function allocateVoucher(voucher: Voucher, user: User, pricePaid: number) {
+export async function allocateVoucher(voucher: Voucher) {
     //Update Voucher Info
     try {
         await updateDoc(doc(db, "vouchers", voucher.id), {
-            owner: user.email,
             hasOwner: true,
         })
     } catch (err) {
@@ -244,11 +255,12 @@ export async function allocateVoucher(voucher: Voucher, user: User, pricePaid: n
     }
 
     //Update User balance
-    const newBalance = user.balance - pricePaid;
+    const user = await getUserData(voucher.owner) as User;
+    const newBalance = user.balance - voucher.highestBid;
     updateUserBalance(user.email, newBalance);
 
     //Update User vouchers - id_quantity_owner_itemName_hasOwner_isRedeemed_itemId
-    const voucherToAdd = voucher.id + "_" + voucher.quantity + "_" + voucher.owner + "_" + voucher.item + "_" + voucher.hasOwner + "_" + voucher.isRedeemed + voucher.itemId;
+    const voucherToAdd = voucher.id + "_" + voucher.quantity + "_" + voucher.owner + "_" + voucher.item + "_" + voucher.hasOwner + "_" + voucher.isRedeemed + "_" + voucher.itemId;
     addVoucherToUser(voucherToAdd, user);
 }
 
@@ -261,6 +273,7 @@ export async function removeVoucherFromUser(voucher: string, user: User) {
 
 export async function useVoucherFromUser(user: User, voucher: Voucher) {
     //Simulate Purchase of Item
+    console.log(voucher.itemId);
     const item = await getItemData(voucher.itemId) as Item;
     return purchaseItem(item, 0, voucher.quantity, user).then(() => {
         //Update Voucher Info

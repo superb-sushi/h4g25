@@ -15,15 +15,7 @@ import OwnedVoucher from "../components/OwnedVoucher";
 
 const VoucherPage = ({user}: {user: User}) => {
 
-  const v = {
-    id: "",
-    quantity: 10,
-    owner: "calebazx@gmail.com",
-    item: "Cinnamon Rolls",
-    hasOwner: true
-  } as Voucher;
-
-  const [vouchers, setVouchers] = useState<Voucher[]>([v,v,v]);
+  const [vouchers, setVouchers] = useState<Voucher[]>([]);
 
   useEffect(() => {
     let vArr = [] as Array<string[]>;
@@ -31,6 +23,7 @@ const VoucherPage = ({user}: {user: User}) => {
       const vTemp = user.vouchers;
       vTemp.forEach(v => {
         const temp = v.split("_");
+        console.log(temp);
         vArr.push(temp);
       })
       let voucherArr = [] as Array<Voucher>;

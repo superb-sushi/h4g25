@@ -11,22 +11,22 @@ const VoucherAuction = ({user}: {user: User}) => {
   useEffect(() => {
     const retrieveVouchers = async () => {
       try {
-              const i = await readVouchers();
-              const itemsTemp = i.docs.map(doc => ({
-                  ...doc.data(),
-                  id: doc.id,
-              } as Voucher))
-              setVouchers(itemsTemp);
-            } catch (err) {
-                console.error(err);
-            }
+        const v = await readVouchers();
+        const vsTemp = v.docs.map(doc => ({
+          ...doc.data(),
+          id: doc.id,
+        } as Voucher))
+        setVouchers(vsTemp);
+      } catch (err) {
+        console.error(err);
+      }
     }
     retrieveVouchers();
   }, [])
 
   return (
     <div className="w-full h-full flex flex-wrap gap-2.5 justify-center">
-      {vouchers.map(v => <VoucherCard voucher={v} user={user}/>)}
+      {vouchers.filter(v => !v.hasOwner).map(v => <VoucherCard voucher={v} user={user}/>)}
     </div>
   )
 }
