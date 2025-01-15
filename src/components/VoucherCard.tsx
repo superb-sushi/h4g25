@@ -24,7 +24,7 @@ import { useState } from "react";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 
-import { allocateVoucher, deleteVoucher, updateVoucherHighestBid } from "@/firebase";  
+import { allocateVoucher, updateVoucherHighestBid } from "@/firebase";  
 import { User } from "@/schema/User";
 
 import { useToast } from "@/hooks/use-toast"
@@ -71,7 +71,6 @@ const VoucherCard = ({voucher, user}: {voucher: Voucher, user: User}) => {
                 description: "As no one participated in the auction, this voucher has been deleted!"
             })
         }
-        deleteVoucher(voucher);
     }
 
   return (
