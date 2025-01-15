@@ -8,7 +8,7 @@ A web-based platform for users and the administrative staff of Muhammadiyah Welf
 
 ## Table of Contents
 1. [Usage](#usage)
-2. [Feature](#features)
+2. [Features](#features)
 3. [Technologies Used](#technologies-used)
 4. [Authors](#authors)
 
