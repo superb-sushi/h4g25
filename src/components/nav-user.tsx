@@ -219,33 +219,31 @@ export function NavUser({
   }
 
   const handleUpload = () => {
-        try {
-            //Guard Clauses
-            (Object.keys(item) as (keyof typeof item)[]).forEach((key) => {
-                if (key != "id" && key != "isAvailable" && key !="image" && item[key] == defaultItem[key]) {
-                  throw `Invalid Upload (Missing Fields:${key})`;
-                }
-            });
-            
-            //Handle image upload + Item Uploads
-            const itemData = async () => {
-              const imageRef = await uploadImage(itemImage!);
-              await uploadItem(item, imageRef);
-            }
-            itemData();
-
-        
-            toast({
-              title: "Upload Successful",
-              description: `"${item.name}" has been successfully added!`
-            });
-        } catch (err) {
-          console.log(err);
-            toast({
-              title: "Upload Error",
-              description: `${(err as Error).toString()}`
-            });
+    //Guard Clauses
+    (Object.keys(item) as (keyof typeof item)[]).forEach((key) => {
+        if (key != "id" && key != "isAvailable" && key !="image" && item[key] == defaultItem[key]) {
+          throw `Invalid Upload (Missing Fields:${key})`;
         }
+    });
+         
+    //Handle image upload + Item Uploads
+    try {
+      const itemData = async () => {
+        const imageRef = await uploadImage(itemImage!);
+          await uploadItem(item, imageRef);
+        }
+      itemData();
+      toast({
+        title: "Upload Successful",
+        description: `"${item.name}" has been successfully added!`
+      });
+    } catch (err) {
+      console.log(err);
+      toast({
+        title: "Upload Error",
+        description: `${(err as Error).toString()}`
+      });
+    }
   }
 
   const [balance, setBalance] = useState<number>(0);
@@ -263,23 +261,18 @@ export function NavUser({
   }
 
   const handleUpdateBalance = () => {
-    try {
-      const updateUserNewBalance = async () => {
-        await updateUserBalance(userToUpdate!.email, balance);
-      }
-      updateUserNewBalance();
-  
+    updateUserBalance(userToUpdate!.email, balance).then(() => {
       toast({
         title: "Update Successful",
         description: `"${userToUpdate!.email}"'s points has been set to ${Number(balance)}!`
       });
-    } catch (err) {
+    }).catch(err => {
       console.log(err);
         toast({
           title: "Update Error",
           description: `${(err as Error).toString()}`
         });
-    }
+    });
   }
 
   return (
@@ -337,7 +330,7 @@ export function NavUser({
                 <div className="flex w-full max-w-sm items-end gap-1.5 pt-2.5">
                   <div>
                     <Label htmlFor="balance" className="text-zinc-800">Add to Balance</Label>
-                    <Input type="number" id="balance" placeholder="0.01" step={0.01} onChange={e => handleBalanceChange(Number(e.target.value))}/>
+                    <Input type="number" id="balance" placeholder="10" step={1} onChange={e => handleBalanceChange(Number(e.target.value))}/>
                   </div>
                   <Button disabled={!users.includes(userToUpdate!)}variant="default" onClick={() => (balance + balanceToAdd) >= 0 ? setBalance(balance + balanceToAdd) : setBalance(0)}>Add</Button>
                 </div>
