@@ -96,7 +96,7 @@ const ItemCard = ({user, item}: {user:User, item: Item}) => {
                         <Input className="w-16" type="number" id="quantity" placeholder="1" min={1} max={3} onChange={e => handleChangeQuantity(e)}/>
                     </div>
                     <div className={totalPx > user.balance ?  "totalPx font-bold text-lg text-red-600" : "totalPx font-bold text-lg text-zinc-950"}>
-                        S${totalPx.toFixed(2)}
+                        {totalPx}
                     </div>
                 </div>
                 <div className="insufficientBalanceText pt-1 text-xs text-zinc-400">
@@ -115,7 +115,7 @@ const ItemCard = ({user, item}: {user:User, item: Item}) => {
     <Card className="miniMartCardContainer hover:bg-zinc-100 duration-200">
       <CardHeader>
         <CardTitle className="text-xl font-bold">{item.name}</CardTitle>
-        <CardDescription>S${item.price.toFixed(2)}</CardDescription>
+        <CardDescription>{item.price} pts</CardDescription>
       </CardHeader>
       <CardContent>
         <img src={imageUrl} className="itemImg rounded-xl"/>

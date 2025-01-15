@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { browserSessionPersistence, createUserWithEmailAndPassword, getAuth, setPersistence, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { addDoc, arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, getFirestore, setDoc, Timestamp, updateDoc } from "firebase/firestore";
+import { addDoc, arrayRemove, arrayUnion, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, setDoc, Timestamp, updateDoc } from "firebase/firestore";
 import { User } from "./schema/User";
 import { getDownloadURL, getStorage, ref, StorageReference, uploadBytes } from "firebase/storage";
 import { Item } from "./schema/item";
@@ -221,7 +221,7 @@ export async function updateVoucherHighestBid(voucher: Voucher, bid: number, use
         await updateDoc(doc(db, "vouchers", voucher.id), {
             highestBid: bid
         })
-        console.log(`Update highest bid for voucher ${voucher.id} to S$${bid}!`);
+        console.log(`Update highest bid for voucher ${voucher.id} to ${bid} pts!`);
         await updateDoc(doc(db, "vouchers", voucher.id), {
             owner: user.email
         })
@@ -245,19 +245,19 @@ export async function addVoucherToUser(voucher: string, user: User) {
 }
 
 export async function allocateVoucher(voucher: Voucher) {
-    //Update Voucher Info
-    try {
-        await updateDoc(doc(db, "vouchers", voucher.id), {
-            hasOwner: true,
-        })
-    } catch (err) {
-        console.error(err);
-    }
-
     //Update User balance
     const user = await getUserData(voucher.owner) as User;
     const newBalance = user.balance - voucher.highestBid;
-    updateUserBalance(user.email, newBalance);
+    if (newBalance >=0 ) {
+        updateUserBalance(user.email, newBalance);
+    } else {
+        throw new Error("The winner doesn't have enough balance! Voucher has no winners!");
+    }
+
+    //Update Voucher Info
+    await updateDoc(doc(db, "vouchers", voucher.id), {
+        hasOwner: true,
+    })
 
     //Update User vouchers - id_quantity_owner_itemName_hasOwner_isRedeemed_itemId
     const voucherToAdd = voucher.id + "_" + voucher.quantity + "_" + voucher.owner + "_" + voucher.item + "_" + voucher.hasOwner + "_" + voucher.isRedeemed + "_" + voucher.itemId;
@@ -289,4 +289,8 @@ export async function useVoucherFromUser(user: User, voucher: Voucher) {
     }).catch(e => {
         throw e;
     })
+}
+
+export async function deleteVoucher(voucher: Voucher) {
+    await deleteDoc(doc(db, "vouchers", voucher.id));
 }

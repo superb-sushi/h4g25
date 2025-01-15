@@ -271,7 +271,7 @@ export function NavUser({
   
       toast({
         title: "Update Successful",
-        description: `"${userToUpdate!.email}"'s balance has been set to S$${Number(balance).toFixed(2)}!`
+        description: `"${userToUpdate!.email}"'s points has been set to ${Number(balance)}!`
       });
     } catch (err) {
       console.log(err);
@@ -295,8 +295,8 @@ export function NavUser({
                   <Input type="text" id="name" placeholder="E.g. Apple" onChange={e => handleChange(e)}/>
                 </div>
                 <div className="grid w-full max-w-sm items-center gap-1.5 pt-2.5">
-                  <Label htmlFor="price" className="text-zinc-800">Price</Label>
-                  <Input type="number" id="price" placeholder="2.50" min={0.10} onChange={e => handleChange(e)}/>
+                  <Label htmlFor="price" className="text-zinc-800">Points</Label>
+                  <Input type="number" id="price" placeholder="20" min={1} onChange={e => handleChange(e)}/>
                 </div>
                 <div className="grid w-full max-w-sm items-center gap-1.5 pt-2.5">
                   <Label htmlFor="quantity" className="text-zinc-800">Quantity</Label>
@@ -332,7 +332,7 @@ export function NavUser({
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="selectedUserBalance text-3xl font-bold text-zinc-900">S${Number(balance).toFixed(2)}</div>
+                  <div className="selectedUserBalance text-3xl font-bold text-zinc-900">{Number(balance) + "pts"}</div>
                 </div>
                 <div className="flex w-full max-w-sm items-end gap-1.5 pt-2.5">
                   <div>
@@ -367,8 +367,8 @@ export function NavUser({
                   </Select>
                 </div>
                 <div className="grid w-full max-w-sm items-center gap-1.5 pt-2.5">
-                  <Label htmlFor="highestBid" className="text-zinc-800">Starting Price</Label>
-                  <Input type="number" id="highestBid" placeholder="2.50" min={0.10} onChange={e => handleVoucherChange(e)}/>
+                  <Label htmlFor="highestBid" className="text-zinc-800">Starting Points</Label>
+                  <Input type="number" id="highestBid" placeholder="20" min={1} onChange={e => handleVoucherChange(e)}/>
                 </div>
                 <div className="grid w-full max-w-sm items-center gap-1.5 pt-2.5">
                   <Label htmlFor="quantity" className="text-zinc-800">Quantity</Label>
@@ -398,7 +398,7 @@ export function NavUser({
                   <AvatarFallback className="rounded-lg">MWH</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate text-lg font-bold">S${user.balance.toFixed(2)}</span>
+                  <span className="truncate text-lg font-bold">{user.balance + "pts"}</span>
                   <span className="truncate text-xs">{user.email}</span>
                 </div>
                 <ChevronsUpDown className="ml-auto size-4" />

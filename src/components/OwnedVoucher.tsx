@@ -19,7 +19,6 @@ const OwnedVoucher = ({voucher, index, user}: {voucher: Voucher, index: number, 
 
     const handleCheck = () => {
         setIsRedeemed(true);
-        console.log(voucher)
         useVoucherFromUser(user, voucher).then(() => {
           toast({
             title: "Redemption Successful!",

@@ -87,7 +87,7 @@ const OOSItemCard = ({item, user}: { item: Item, user: User}) => {
       <Card className="miniMartCardContainer hover:bg-zinc-100 duration-200">
         <CardHeader>
           <CardTitle className="text-xl font-bold">{item.name}</CardTitle>
-          <CardDescription>S${item.price.toFixed(2)}</CardDescription>
+          <CardDescription>{item.price + "pts"}</CardDescription>
         </CardHeader>
         <CardContent>
           <img src={scr} className="itemImg rounded-xl"/>
