@@ -8,7 +8,7 @@ const Minimart = ({items, user}: {items: Item[], user: User}) => {
 
   return (
     <div className="h-full w-full flex flex-wrap justify-evenly miniMartContainer">
-      {items.filter(item => item.isAvailable).map(item => <ItemCard user={user} item={item} />)}
+      {items.filter(item => item.isAvailable || item.quantity > 0).map(item => <ItemCard user={user} item={item} />)}
     </div>
   )
 }
