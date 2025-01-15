@@ -118,7 +118,7 @@ const ItemCard = ({user, item}: {user:User, item: Item}) => {
         <CardDescription>{item.price} pts</CardDescription>
       </CardHeader>
       <CardContent>
-        <img src={imageUrl} className="itemImg rounded-xl"/>
+        <img src={imageUrl} className="itemImg rounded-xl h-full w-full"/>
       </CardContent>
       <CardFooter>
         <div className="text-sm font-normal text-neutral-400">{stock} in-stock!</div>
