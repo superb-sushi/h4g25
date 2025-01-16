@@ -325,7 +325,7 @@ export function NavUser({
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="selectedUserBalance text-3xl font-bold text-zinc-900">{Number(balance) + "pts"}</div>
+                  <div className="selectedUserBalance text-3xl font-bold text-zinc-900">{Number(balance) + " pts"}</div>
                 </div>
                 <div className="flex w-full max-w-sm items-end gap-1.5 pt-2.5">
                   <div>
